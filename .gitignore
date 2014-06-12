@@ -1,0 +1,15 @@
+# Generated files
+bin/
+gen/
+
+# Gradle files
+.gradle/
+build/
+
+# Build and Release Folders
+bin/
+Export/
+
+# Other files and folders
+.DS_Store
+.xxx
