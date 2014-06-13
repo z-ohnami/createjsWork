@@ -44,6 +44,10 @@ var easings = [
 	createjs.Ease.elasticInOut
 ];
 
+var sides = ["left","top","right","bottom"];
+var lengths;
+var lengthstotal = 0;
+
 function init() {
 
 	var file = "img/target1.png";
@@ -64,11 +68,6 @@ function init() {
 function draw(eventObject) {
 	var myImage = eventObject.result;
 	myBitmap = new createjs.Bitmap(myImage);
-
-	// top2 += (myImage.height / 2);
-	// bottom  -= (myImage.height / 2);
-	// left  += (myImage.width / 2);
-	// right -= (myImage.width / 2);
 
 	setGeometricData(myImage.width / 2,myImage.height / 2);
 
@@ -92,12 +91,19 @@ function setGeometricData(offsetX,offsetY) {
 	bottom  -= offsetY;
 	left  += offsetX;
 	right -= offsetX;
+
+	var width = right - left;
+	var height = bottom - top2;
+	lengths = [height,width,height,width];
+	lengthstotal = height + width + height + width;
+
 }
 
 function setRandomTween(target,side) {
-	var nextPoint = getNextPosition(side);
+	var pos = getNextPosition(side);
+	var nextPoint = getPoint(pos);
 
-	var randomTime = Math.random() * 5000 + 1000;
+	var randomTime = Math.random() * 3000 + 500;
 	var easing = easings[Math.floor(Math.random() * easings.length)];
 
 	setTween(target,nextPoint,randomTime,easing);
@@ -111,18 +117,52 @@ function setTween(target,myPoint,time,easing) {
 
 }
 
-function getNextPosition(side) {
-	var nextX;
-	var nextY = Math.random() * (bottom - top2) + top2;
-	if(side == "left") {
-		currentSide = "right";
-		nextX = right;
-	} else {
-		currentSide = "left";
-		nextX = left;
+function getNextPosition(mySide) {
+	var index = sides.indexOf(mySide);
+	var range = lengthstotal - lengths[index];
+	var position = range * Math.random();
+	var returnObject;
+	var count = lengths.length;
+	for (var i = 1; i < count; i++) {
+		var indexNext = (index + i) % count;
+		var length = lengths[indexNext];
+		if(position <= length) {
+			var side = sides[indexNext];
+			returnObject = {side:side,position:position};
+			currentSide = side;
+			break;
+		} else {
+			position -= length;
+		}
+	};
+
+	return returnObject;
+}
+
+function getPoint(position) {
+	var myPoint = new createjs.Point();
+	var side = position.side;
+	var value = position.position;
+	switch(side) {
+		case "top":
+			myPoint.x = value + left;
+			myPoint.y = top2;
+			break;
+		case "bottom":
+			myPoint.x = value + left;
+			myPoint.y = bottom;
+			break;
+		case "left":
+			myPoint.x = left;
+			myPoint.y = value + top2;
+			break;
+		case "right":
+			myPoint.x = right;
+			myPoint.y = value + top2;
+			break;
 	}
 
-	return new createjs.Point(nextX,nextY);
+	return myPoint;
 }
 
 </script>
